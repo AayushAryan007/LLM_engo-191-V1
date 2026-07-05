@@ -64,11 +64,14 @@ A terminal application capable of maintaining multi-turn conversations with an L
 
 ---
 
-## Milestone 2 — Prompt Engineering
+## Milestone 2 — Prompt Engineering (`m2_prompt_studio`)
 
 **Objective**
 
-Improve response quality through structured prompt design.
+Improve response quality through structured prompt design — learned by
+experimentation rather than feature-building. The deliverable is a **Prompt
+Engineering Studio**: a terminal app that is really a menu of prompt
+experiments over the *same* model.
 
 ### Topics
 
@@ -78,6 +81,42 @@ Improve response quality through structured prompt design.
 - JSON responses
 - Persona design
 - Prompt templates
+
+### Architecture
+
+A one-way request pipeline where each layer has a single responsibility and
+only talks to the layer below it:
+
+```
+main.py          orchestration — wires dependencies, runs the loop, dispatches
+utils/menu.py    UI: render menu, read + validate the numeric choice
+utils/printer.py UI: all terminal output (banner, message, error, success)
+services/        business logic — build messages, call the LLM, return a reply
+llm.py           the only module that knows Groq exists (messages → text)
+config.py        settings + logging (single source of truth)
+```
+
+Guiding rules that keep it scalable: `main.py` holds no business/API/prompt
+logic and no bare `print()`; UI modules never import AI code; prompt
+construction lives in each service's `_build_messages()` — the seam where new
+experiments plug in. Adding an experiment = one prompt file + one service +
+one dispatch entry; no other file changes.
+
+### Phases
+
+| Phase | Experiment            | Concept           |
+| ----- | --------------------- | ----------------- |
+| 1     | Framework + Playground| Architecture      |
+| 2     | Explain Concepts      | System prompts    |
+| 3     | Backend Mentor        | Persona prompting |
+| 4     | SQL Assistant         | Task prompting    |
+| 5     | Rewrite Assistant     | Style prompting   |
+| 6     | Structured JSON       | Structured output |
+| 7     | Compare Prompt Styles | Prompt evaluation |
+
+**Current status: Phase 1 complete.** The framework runs end-to-end; the
+Custom Playground experiment works, and remaining menu options display
+`Coming in Phase 2`.
 
 ### Deliverable
 
@@ -302,7 +341,13 @@ AI/
 │
 └── src/
     ├── m1_cli_chat/
-    ├── m2_prompt_engineering/
+    ├── m2_prompt_studio/
+    │   ├── main.py
+    │   ├── config.py
+    │   ├── llm.py
+    │   ├── prompts/
+    │   ├── services/
+    │   └── utils/
     ├── m3_semantic_search/
     ├── m4_vector_database/
     ├── m5_rag/
@@ -337,7 +382,7 @@ Rather than building isolated examples, each milestone extends previous work, gr
 | Milestone | Project | Status |
 |-----------|----------|--------|
 | M1 | CLI LLM Client | 🚧 In Progress |
-| M2 | Prompt Engineering | ⏳ Planned |
+| M2 | Prompt Engineering (Prompt Studio) | 🚧 In Progress — Phase 1 complete |
 | M3 | Semantic Search | ⏳ Planned |
 | M4 | Vector Database | ⏳ Planned |
 | M5 | RAG | ⏳ Planned |
