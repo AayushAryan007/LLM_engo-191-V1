@@ -1,13 +1,19 @@
-from config import require_api_key, setup_logging
+from config import ConfigError, require_api_key, setup_logging
 from conversation import Conversation
 from llm import LLMClient
 
-EXIT_COMMANDS = {"exit", "quit"}
+EXIT_COMMANDS: set[str] = {"exit", "quit"}
 
 
 def main() -> None:
+    """Run the interactive terminal chat loop until the user exits."""
     logger = setup_logging()
-    api_key = require_api_key(logger)
+
+    try:
+        api_key = require_api_key()
+    except ConfigError as e:
+        logger.error("%s", e)
+        return
 
     llm = LLMClient(api_key)
     conversation = Conversation()

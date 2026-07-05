@@ -8,11 +8,24 @@ logger = logging.getLogger("m1_cli_chat")
 
 
 class LLMClient:
-    def __init__(self, api_key: str):
-        self.client = OpenAI(api_key=api_key, base_url=GROQ_BASE_URL)
-        self.model = GROQ_MODEL
+    """Thin wrapper around the OpenAI-compatible Groq chat completions API."""
 
-    def get_reply(self, messages: list[dict]) -> str | None:
+    def __init__(self, api_key: str) -> None:
+        """Initialize the client.
+
+        :param api_key: Groq API key used to authenticate requests.
+        """
+        self.client: OpenAI = OpenAI(api_key=api_key, base_url=GROQ_BASE_URL)
+        self.model: str = GROQ_MODEL
+
+    def get_reply(self, messages: list[dict[str, str]]) -> str | None:
+        """Send a conversation to the model and return its reply.
+
+        :param messages: Chat messages in OpenAI format, each a dict with
+            ``role`` and ``content`` keys.
+        :returns: The assistant's reply text, or ``None`` if the request failed
+            (rate limit, connection error, or other API error).
+        """
         try:
             response = self.client.chat.completions.create(
                 model=self.model,
