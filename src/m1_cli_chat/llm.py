@@ -31,6 +31,22 @@ class LLMClient:
                 model=self.model,
                 messages=messages,
             )
+            # print("\n===== RAW RESPONSE =====")
+            # print(response)
+            # print(response.id)
+
+            # print(response.model)
+
+            # print(response.choices)
+
+            # print(response.choices[0])
+
+            # print(response.choices[0].message)
+
+            # print(response.choices[0].message.content)
+
+            # print(response.usage)
+            # print("========================\n")
             return response.choices[0].message.content
         except RateLimitError:
             logger.error("Rate limit hit. Try again shortly.")
