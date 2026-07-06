@@ -7,11 +7,24 @@ it only coordinates the other layers.
 
 from config import ConfigError, get_settings, setup_logging
 from llm import LLMClient
+from services.explain_service import Audience, ExplainService
 from services.playground_service import PlaygroundService
 from utils import menu, printer
 
+EXPLAIN_OPTION = 1
 PLAYGROUND_OPTION = 8
 EXIT_OPTION = 9
+
+
+def _print_reply(reply: str | None) -> None:
+    """Display a service reply, or an error if the call failed.
+
+    :param reply: The service's return value (text, or ``None`` on failure).
+    """
+    if reply is None:
+        printer.print_error("No reply received. See the log above for details.")
+        return
+    printer.print_message(reply)
 
 
 def _run_playground(service: PlaygroundService) -> None:
@@ -23,13 +36,22 @@ def _run_playground(service: PlaygroundService) -> None:
     if not user_input:
         printer.print_error("Message cannot be empty.")
         return
+    _print_reply(service.run(user_input))
 
-    reply = service.run(user_input)
-    if reply is None:
-        printer.print_error("No reply received. See the log above for details.")
+
+def _run_explain(service: ExplainService) -> None:
+    """Read a topic and audience, then display the tailored explanation.
+
+    :param service: The explain service that owns the prompt/message logic.
+    """
+    topic = input("Enter Topic: ").strip()
+    if not topic:
+        printer.print_error("Topic cannot be empty.")
         return
 
-    printer.print_message(reply)
+    choice = menu.choose("Choose Audience", Audience.labels())
+    audience = Audience.from_choice(choice)
+    _print_reply(service.run(topic, audience))
 
 
 def main() -> None:
@@ -43,6 +65,7 @@ def main() -> None:
         return
 
     llm = LLMClient(settings)
+    explain = ExplainService(llm)
     playground = PlaygroundService(llm)
     logger.info("Prompt Studio started (model=%s)", settings.model)
 
@@ -53,7 +76,9 @@ def main() -> None:
             if choice == EXIT_OPTION:
                 printer.print_success("Goodbye.")
                 break
-            if choice == PLAYGROUND_OPTION:
+            if choice == EXPLAIN_OPTION:
+                _run_explain(explain)
+            elif choice == PLAYGROUND_OPTION:
                 _run_playground(playground)
             else:
                 printer.print_message("Coming in Phase 2")

@@ -4,6 +4,8 @@ A collection of production-oriented AI applications built while exploring modern
 
 The objective of this repository is to progressively build, improve, and productionize AI-powered applications by following an engineering-first approach rather than isolated tutorials.
 
+> See [ARCHITECTURE.md](ARCHITECTURE.md) for the layered design shared across modules — layers, request flow, principles, and how to add new modules.
+
 ---
 
 # Vision
@@ -114,9 +116,12 @@ one dispatch entry; no other file changes.
 | 6     | Structured JSON       | Structured output |
 | 7     | Compare Prompt Styles | Prompt evaluation |
 
-**Current status: Phase 1 complete.** The framework runs end-to-end; the
-Custom Playground experiment works, and remaining menu options display
-`Coming in Phase 2`.
+**Current status: Phase 2 complete.** The framework runs end-to-end; the
+Custom Playground (option 8) and Explain Concepts (option 1) experiments work.
+Explain Concepts tailors the system prompt to a chosen audience (Student,
+Backend Developer, Senior Engineer, Interview Prep, Non-Technical), so the same
+topic yields different explanations. Remaining menu options display a
+"coming soon" message.
 
 ### Deliverable
 
@@ -381,8 +386,8 @@ Rather than building isolated examples, each milestone extends previous work, gr
 
 | Milestone | Project | Status |
 |-----------|----------|--------|
-| M1 | CLI LLM Client | 🚧 In Progress |
-| M2 | Prompt Engineering (Prompt Studio) | 🚧 In Progress — Phase 1 complete |
+| M1 | CLI LLM Client | ✅ Complete |
+| M2 | Prompt Engineering (Prompt Studio) | 🚧 In Progress — Phase 2 complete |
 | M3 | Semantic Search | ⏳ Planned |
 | M4 | Vector Database | ⏳ Planned |
 | M5 | RAG | ⏳ Planned |
