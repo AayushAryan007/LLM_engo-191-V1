@@ -5,8 +5,8 @@ messages. No I/O, no printing — a topic and an audience go in, a reply comes o
 """
 
 import logging
-from enum import Enum
 
+from enums import LabeledEnum
 from llm import LLMClient, Message
 from prompts.explain import (
     backend_prompt,
@@ -19,7 +19,7 @@ from prompts.explain import (
 logger = logging.getLogger("m2_prompt_studio")
 
 
-class Audience(Enum):
+class Audience(LabeledEnum):
     """Audiences an explanation can be tailored to. Definition order = menu order."""
 
     STUDENT = "Student"
@@ -27,27 +27,6 @@ class Audience(Enum):
     SENIOR = "Senior Engineer"
     INTERVIEW = "Interview Preparation"
     NON_TECHNICAL = "Non Technical Person"
-
-    @classmethod
-    def labels(cls) -> list[str]:
-        """Return the display labels in menu order.
-
-        :returns: One human-readable label per audience.
-        """
-        return [audience.value for audience in cls]
-
-    @classmethod
-    def from_choice(cls, choice: int) -> "Audience":
-        """Map a 1-based menu choice to an :class:`Audience`.
-
-        :param choice: A 1-based position matching :meth:`labels`.
-        :returns: The corresponding audience.
-        :raises ValueError: If ``choice`` is outside the valid range.
-        """
-        members = list(cls)
-        if not 1 <= choice <= len(members):
-            raise ValueError(f"Invalid audience choice: {choice}")
-        return members[choice - 1]
 
 
 # Which system prompt builder to use for each audience.

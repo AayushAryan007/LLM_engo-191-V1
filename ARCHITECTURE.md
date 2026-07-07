@@ -60,6 +60,7 @@ Groq API           via the OpenAI-compatible SDK
 | Layer | File(s) | Single responsibility | What breaks if merged away |
 |-------|---------|-----------------------|----------------------------|
 | Config | [config.py](src/m2_prompt_studio/config.py) | Load env, expose an immutable `Settings`, configure logging, raise `ConfigError` early | Config reads scatter; changing the model means grepping the codebase |
+| Shared enums | [enums.py](src/m2_prompt_studio/enums.py) | `LabeledEnum` base: `labels()` + `from_choice()` for menu-selectable choices | Every feature's choice enum re-implements identical label/selection logic |
 | Provider | [llm.py](src/m2_prompt_studio/llm.py) | Turn chat messages into model text; the **only** file importing `openai` | Swapping providers touches every service |
 | Prompts | [prompts/](src/m2_prompt_studio/prompts) | Pure functions returning prompt strings — no I/O, no logic | Prompt wording gets tangled in control flow; non-engineers can't tune it |
 | Services | [services/](src/m2_prompt_studio/services) | Own business logic: choose prompt, build messages, call the LLM | `main` learns message formats and bloats with every feature |
@@ -127,7 +128,9 @@ touch a predictable, small set of files — the architecture stays fixed:
    string(s). No I/O, no logic.
 2. **`services/<feature>_service.py`** — add a `<Feature>Service` that takes an
    injected `LLMClient`, maps inputs to a prompt, builds messages in
-   `_build_messages()`, and returns `str | None`. Put any domain enums here.
+   `_build_messages()`, and returns `str | None`. Put any domain enums here; if
+   the enum is menu-selectable, subclass `LabeledEnum` (`enums.py`) to inherit
+   `labels()`/`from_choice()` instead of re-writing them.
 3. **`main.py`** — instantiate the service once, add a dispatch branch and a
    small `_run_<feature>` I/O helper (read input → call service → `_print_reply`).
 4. **`utils/menu.py`** — only if the feature needs a new sub-menu; reuse

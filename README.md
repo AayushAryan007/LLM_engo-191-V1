@@ -106,21 +106,34 @@ one dispatch entry; no other file changes.
 
 ### Phases
 
-| Phase | Experiment            | Concept           |
-| ----- | --------------------- | ----------------- |
-| 1     | Framework + Playground| Architecture      |
-| 2     | Explain Concepts      | System prompts    |
-| 3     | Backend Mentor        | Persona prompting |
-| 4     | SQL Assistant         | Task prompting    |
-| 5     | Rewrite Assistant     | Style prompting   |
-| 6     | Structured JSON       | Structured output |
-| 7     | Compare Prompt Styles | Prompt evaluation |
+| Phase | Experiment             | Concept              | Status |
+| ----- | ---------------------- | -------------------- | ------ |
+| 1     | Framework + Playground | Architecture         | ✅     |
+| 2     | Explain Concepts       | System prompts       | ✅     |
+| 3     | Backend Mentor         | Persona prompting    | ✅     |
+| 4     | SQL Assistant          | Task prompting       | ✅     |
+| 5     | Code Reviewer          | Instruction prompting| ✅     |
+| 6     | Rewrite Assistant      | Style prompting      | ⏳     |
+| 7     | JSON Generator         | Structured output    | ⏳     |
+| 8     | Compare Prompt Styles  | Prompt evaluation    | ⏳     |
+| 9     | Playground Upgrade     | Free experimentation | ⏳     |
 
-**Current status: Phase 2 complete.** The framework runs end-to-end; the
-Custom Playground (option 8) and Explain Concepts (option 1) experiments work.
-Explain Concepts tailors the system prompt to a chosen audience (Student,
-Backend Developer, Senior Engineer, Interview Prep, Non-Technical), so the same
-topic yields different explanations. Remaining menu options display a
+**Current status: Phase 5 complete.** The framework runs end-to-end. Working
+experiments:
+
+- **Explain Concepts** (1) — *varies the system prompt* by audience (Student →
+  Non-Technical), so the same topic yields different explanations.
+- **Backend Mentor** (2) — *fixes* a single Senior Mentor persona and *varies
+  the topic* (15 backend topics); the inverse lesson, demonstrating persona
+  prompting.
+- **SQL Assistant** (3) — capability-driven (Explain, Optimize, Suggest
+  Indexes, SQL↔ORM, Query Plan, Performance) over a pasted query.
+- **Code Reviewer** (4) — 7 reviewer personas sharing one fixed review
+  structure; persona varies, structure is constant.
+- **Custom Playground** (8) — single-shot free-form prompt.
+
+Menu-selectable choices share a `LabeledEnum` base (`enums.py`) so the
+label/selection logic is written once. Remaining options (5–7) display a
 "coming soon" message.
 
 ### Deliverable
@@ -350,6 +363,7 @@ AI/
     │   ├── main.py
     │   ├── config.py
     │   ├── llm.py
+    │   ├── enums.py
     │   ├── prompts/
     │   ├── services/
     │   └── utils/
@@ -387,7 +401,7 @@ Rather than building isolated examples, each milestone extends previous work, gr
 | Milestone | Project | Status |
 |-----------|----------|--------|
 | M1 | CLI LLM Client | ✅ Complete |
-| M2 | Prompt Engineering (Prompt Studio) | 🚧 In Progress — Phase 2 complete |
+| M2 | Prompt Engineering (Prompt Studio) | 🚧 In Progress — Phase 5 complete |
 | M3 | Semantic Search | ⏳ Planned |
 | M4 | Vector Database | ⏳ Planned |
 | M5 | RAG | ⏳ Planned |
