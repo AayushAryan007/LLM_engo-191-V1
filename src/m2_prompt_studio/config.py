@@ -15,6 +15,13 @@ load_dotenv()
 _DEFAULT_MODEL = "llama-3.1-8b-instant"
 _DEFAULT_BASE_URL = "https://api.groq.com/openai/v1"
 
+# Groq models selectable in the Playground. Edit to match your Groq access.
+AVAILABLE_MODELS: list[str] = [
+    "llama-3.1-8b-instant",
+    "llama-3.3-70b-versatile",
+    "gemma2-9b-it",
+]
+
 
 class ConfigError(Exception):
     """Raised when required configuration (e.g. the API key) is missing."""

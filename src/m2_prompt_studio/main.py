@@ -5,7 +5,7 @@ menu loop. It holds no business logic, no API calls, and no prompt logic:
 it only coordinates the other layers.
 """
 
-from config import ConfigError, get_settings, setup_logging
+from config import AVAILABLE_MODELS, ConfigError, get_settings, setup_logging
 from llm import LLMClient
 from services.backend_service import TOPICS, BackendMentorService
 from services.explain_service import Audience, ExplainService
@@ -39,16 +39,78 @@ def _print_reply(reply: str | None) -> None:
     printer.print_message(reply)
 
 
-def _run_playground(service: PlaygroundService) -> None:
-    """Read one message, hand it to the service, and display the reply.
+_PLAYGROUND_ACTIONS = [
+    "Send a message",
+    "View settings",
+    "Set system prompt",
+    "Set temperature",
+    "Set max tokens",
+    "Select model",
+    "Toggle history",
+    "Clear history",
+    "Back to main menu",
+]
 
-    :param service: The playground service that owns the exchange logic.
+
+def _run_playground(service: PlaygroundService, models: list[str]) -> None:
+    """Run the interactive playground sub-loop until the user goes back.
+
+    :param service: The stateful playground service.
+    :param models: Selectable model ids for the model picker.
     """
-    user_input = input("Your message: ").strip()
-    if not user_input:
-        printer.print_error("Message cannot be empty.")
-        return
-    _print_reply(service.run(user_input))
+    while True:
+        action = menu.choose("Playground", _PLAYGROUND_ACTIONS)
+
+        if action == 1:  # Send a message
+            message = input("You: ").strip()
+            if not message:
+                printer.print_error("Message cannot be empty.")
+                continue
+            _print_reply(service.send(message))
+        elif action == 2:  # View settings
+            summary = "\n".join(
+                f"{name}: {value}" for name, value in service.current_settings().items()
+            )
+            printer.print_message(summary)
+        elif action == 3:  # Set system prompt
+            prompt = input("System prompt: ").strip()
+            if not prompt:
+                printer.print_error("System prompt cannot be empty.")
+                continue
+            service.set_system_prompt(prompt)
+            printer.print_success("System prompt updated.")
+        elif action == 4:  # Set temperature
+            raw = input("Temperature (0.0-2.0): ").strip()
+            try:
+                temperature = float(raw)
+            except ValueError:
+                printer.print_error("Temperature must be a number.")
+                continue
+            if not 0.0 <= temperature <= 2.0:
+                printer.print_error("Temperature must be between 0.0 and 2.0.")
+                continue
+            service.set_temperature(temperature)
+            printer.print_success(f"Temperature set to {temperature}.")
+        elif action == 5:  # Set max tokens
+            raw = input("Max tokens: ").strip()
+            if not raw.isdigit() or int(raw) == 0:
+                printer.print_error("Max tokens must be a positive integer.")
+                continue
+            service.set_max_tokens(int(raw))
+            printer.print_success(f"Max tokens set to {raw}.")
+        elif action == 6:  # Select model
+            choice = menu.choose("Select Model", models)
+            model = models[choice - 1]
+            service.set_model(model)
+            printer.print_success(f"Model set to {model}.")
+        elif action == 7:  # Toggle history
+            enabled = service.toggle_history()
+            printer.print_success(f"History {'enabled' if enabled else 'disabled'}.")
+        elif action == 8:  # Clear history
+            service.clear_history()
+            printer.print_success("Conversation history cleared.")
+        else:  # Back to main menu
+            return
 
 
 def _run_explain(service: ExplainService) -> None:
@@ -174,7 +236,7 @@ def main() -> None:
     rewrite = RewriteService(llm)
     json_gen = JSONService(llm)
     compare = CompareService(llm)
-    playground = PlaygroundService(llm)
+    playground = PlaygroundService(llm, settings.model)
     logger.info("Prompt Studio started (model=%s)", settings.model)
 
     try:
@@ -199,7 +261,7 @@ def main() -> None:
             elif choice == COMPARE_OPTION:
                 _run_compare(compare)
             elif choice == PLAYGROUND_OPTION:
-                _run_playground(playground)
+                _run_playground(playground, AVAILABLE_MODELS)
             else:
                 printer.print_message("Coming in a future sprint.")
     except (KeyboardInterrupt, EOFError):

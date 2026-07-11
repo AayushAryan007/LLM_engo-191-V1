@@ -113,13 +113,13 @@ one dispatch entry; no other file changes.
 | 3     | Backend Mentor         | Persona prompting    | ✅     |
 | 4     | SQL Assistant          | Task prompting       | ✅     |
 | 5     | Code Reviewer          | Instruction prompting| ✅     |
-| 6     | Rewrite Assistant      | Style prompting      | ⏳     |
-| 7     | JSON Generator         | Structured output    | ⏳     |
-| 8     | Compare Prompt Styles  | Prompt evaluation    | ⏳     |
-| 9     | Playground Upgrade     | Free experimentation | ⏳     |
+| 6     | Rewrite Assistant      | Style prompting      | ✅     |
+| 7     | JSON Generator         | Structured output    | ✅     |
+| 8     | Compare Prompt Styles  | Prompt evaluation    | ✅     |
+| 9     | Playground Upgrade     | Free experimentation | ✅     |
 
-**Current status: Phase 5 complete.** The framework runs end-to-end. Working
-experiments:
+**Current status: M2 complete (all 9 phases).** The framework runs end-to-end.
+Working experiments:
 
 - **Explain Concepts** (1) — *varies the system prompt* by audience (Student →
   Non-Technical), so the same topic yields different explanations.
@@ -130,11 +130,20 @@ experiments:
   Indexes, SQL↔ORM, Query Plan, Performance) over a pasted query.
 - **Code Reviewer** (4) — 7 reviewer personas sharing one fixed review
   structure; persona varies, structure is constant.
-- **Custom Playground** (8) — single-shot free-form prompt.
+- **Rewrite Assistant** (5) — rewrites text in one of 7 styles (Professional,
+  Documentation, ATS Resume, LinkedIn, Email, Simplified, Executive Summary).
+- **JSON Generator** (6) — generates JSON from a request, then validates it
+  with `json.loads()` and pretty-prints it (or reports the error).
+- **Compare Prompt Styles** (7) — runs one question through 6 strategies in one
+  action, reusing existing prompts, and prints the answers side by side.
+- **Custom Playground** (8) — a stateful, configurable chat lab. A sub-menu
+  supports multi-turn conversation history, a history on/off toggle, clearing
+  history, a custom system prompt, and live control of temperature, max tokens,
+  and model — plus a "view settings" view. Conversation state lives in
+  `conversation.py`; only `llm.py` knows about temperature/max_tokens/model.
 
 Menu-selectable choices share a `LabeledEnum` base (`enums.py`) so the
-label/selection logic is written once. Remaining options (5–7) display a
-"coming soon" message.
+label/selection logic is written once.
 
 ### Deliverable
 
@@ -364,6 +373,7 @@ AI/
     │   ├── config.py
     │   ├── llm.py
     │   ├── enums.py
+    │   ├── conversation.py
     │   ├── prompts/
     │   ├── services/
     │   └── utils/
@@ -401,7 +411,7 @@ Rather than building isolated examples, each milestone extends previous work, gr
 | Milestone | Project | Status |
 |-----------|----------|--------|
 | M1 | CLI LLM Client | ✅ Complete |
-| M2 | Prompt Engineering (Prompt Studio) | 🚧 In Progress — Phase 5 complete |
+| M2 | Prompt Engineering (Prompt Studio) | ✅ Complete |
 | M3 | Semantic Search | ⏳ Planned |
 | M4 | Vector Database | ⏳ Planned |
 | M5 | RAG | ⏳ Planned |

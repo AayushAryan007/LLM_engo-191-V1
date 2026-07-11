@@ -136,9 +136,21 @@ touch a predictable, small set of files — the architecture stays fixed:
 4. **`utils/menu.py`** — only if the feature needs a new sub-menu; reuse
    `choose(title, options)` rather than writing a new validation loop.
 
+Two patterns the later modules established:
+
+- **Reuse prompts across modules.** A service may import prompt functions from
+  another feature's module (e.g. Prompt Comparison imports from
+  `prompts/explain.py` and `prompts/backend.py`) rather than duplicating them.
+- **Structured results when the contract differs.** If a service does more than
+  return text — e.g. JSON Generator validates and can fail *after* a successful
+  call — return a small `@dataclass` result (like `JSONResult(ok, content)`)
+  and give it its own display branch in `main`, instead of overloading the
+  shared `str | None` / `_print_reply` path.
+
 You should **not** need to touch `llm.py`, `config.py`, or `printer.py` to add a
 feature. If you do, question whether the responsibility is landing in the right
-layer.
+layer. (Playground Upgrade is the deliberate exception: multi-turn chat with
+temperature/model controls legitimately extends `llm.py`.)
 
 ## How to add a new **module** (milestone)
 
