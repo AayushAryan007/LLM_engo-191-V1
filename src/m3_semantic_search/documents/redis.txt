@@ -1,0 +1,545 @@
+# Redis
+
+## Introduction
+
+Redis (Remote Dictionary Server) is an open-source, in-memory data structure store that is commonly used as a database, cache, message broker, and streaming engine. Unlike traditional relational databases that primarily store data on disk, Redis stores data in memory (RAM), enabling extremely fast read and write operations with response times often measured in microseconds.
+
+Because of its exceptional performance, Redis is widely used to improve application speed, reduce database load, manage user sessions, implement rate limiting, process background jobs, and support real-time applications.
+
+Redis supports multiple data structures beyond simple key-value storage, making it suitable for a wide variety of backend use cases ranging from caching API responses to powering chat systems and leaderboards.
+
+---
+
+## Why Redis Was Created
+
+Traditional databases such as PostgreSQL and MySQL provide durability and complex querying but are comparatively slower because data must be read from and written to disk.
+
+Many applications repeatedly query the same data, resulting in unnecessary database load and increased response times.
+
+Redis was created to solve these problems by providing:
+
+- Extremely fast in-memory storage
+- Simple key-value access
+- Rich data structures
+- Low latency
+- Efficient caching
+- High throughput
+
+By storing frequently accessed data in memory, Redis significantly improves application performance while reducing the workload on primary databases.
+
+---
+
+## Key Features
+
+### In-Memory Storage
+
+Redis primarily stores data in RAM rather than on disk.
+
+Because RAM access is much faster than disk access, Redis can process hundreds of thousands of operations per second.
+
+This makes Redis ideal for applications that require low-latency data access.
+
+---
+
+### Key-Value Database
+
+Redis stores data as key-value pairs.
+
+Example:
+
+```
+Key: user:101
+Value: {"name":"Alice","age":25}
+```
+
+Keys uniquely identify values, allowing data to be retrieved quickly without complex queries.
+
+---
+
+### Rich Data Structures
+
+Unlike many key-value stores, Redis supports multiple data structures.
+
+These include:
+
+- Strings
+- Hashes
+- Lists
+- Sets
+- Sorted Sets
+- Streams
+- Bitmaps
+- HyperLogLogs
+- Geospatial indexes
+
+Choosing the appropriate data structure improves both performance and simplicity.
+
+---
+
+## Redis Architecture
+
+A typical Redis architecture consists of:
+
+Application
+
+↓
+
+Redis Client
+
+↓
+
+Redis Server
+
+↓
+
+Memory
+
+↓
+
+(Optional Persistence)
+
+Applications communicate with Redis over TCP connections using a simple request-response protocol.
+
+---
+
+## Strings
+
+Strings are the simplest Redis data type.
+
+They can store:
+
+- Text
+- Numbers
+- JSON
+- Serialized objects
+- Tokens
+
+Common use cases include:
+
+- Session tokens
+- Authentication tokens
+- Cached API responses
+- Configuration values
+
+---
+
+## Hashes
+
+Hashes store multiple fields under a single key.
+
+Example:
+
+```
+user:101
+
+name → Alice
+
+email → alice@example.com
+
+age → 25
+```
+
+Hashes are commonly used to represent objects such as users, products, and orders.
+
+---
+
+## Lists
+
+Lists maintain ordered collections of elements.
+
+Common use cases:
+
+- Queues
+- Task processing
+- Recent activity
+- Notification feeds
+
+Lists support insertion and removal from both ends, making them efficient for queue-based workloads.
+
+---
+
+## Sets
+
+Sets store unique values.
+
+Common use cases include:
+
+- User permissions
+- Tags
+- Unique visitors
+- Friend relationships
+
+Sets automatically prevent duplicate entries.
+
+---
+
+## Sorted Sets
+
+Sorted Sets associate each element with a score.
+
+Redis automatically keeps elements ordered by score.
+
+Typical applications include:
+
+- Leaderboards
+- Rankings
+- Recommendation systems
+- Priority queues
+
+Sorted Sets are one of Redis's most powerful features for real-time applications.
+
+---
+
+## Streams
+
+Redis Streams support append-only event logs.
+
+Common use cases include:
+
+- Event processing
+- Messaging systems
+- Activity tracking
+- Data pipelines
+
+Streams allow multiple consumers to process events independently.
+
+---
+
+## Caching
+
+Caching is Redis's most common use case.
+
+Instead of querying the database repeatedly:
+
+Application
+
+↓
+
+Redis Cache
+
+↓
+
+Database (only if cache miss)
+
+When requested data already exists in Redis, the application avoids expensive database queries.
+
+This significantly reduces response times and database load.
+
+---
+
+## Cache Expiration
+
+Redis allows keys to expire automatically after a specified duration.
+
+Examples:
+
+- Login sessions
+- Temporary verification codes
+- OTPs
+- Cached API responses
+
+Automatic expiration prevents stale data from occupying memory indefinitely.
+
+---
+
+## Session Storage
+
+Redis is widely used to store user sessions.
+
+Instead of storing sessions in application memory, multiple backend servers can share session information through Redis.
+
+Benefits include:
+
+- Horizontal scalability
+- Fast access
+- Session persistence across servers
+
+This is especially useful in load-balanced environments.
+
+---
+
+## Publish/Subscribe Messaging
+
+Redis supports a Publish/Subscribe (Pub/Sub) messaging model.
+
+Components include:
+
+Publisher
+
+↓
+
+Redis Channel
+
+↓
+
+Subscribers
+
+Applications use Pub/Sub for:
+
+- Chat systems
+- Notifications
+- Live dashboards
+- Event broadcasting
+
+Messages are delivered in real time to subscribed clients.
+
+---
+
+## Rate Limiting
+
+Redis is commonly used to implement API rate limiting.
+
+Example:
+
+Limit:
+
+100 requests per minute
+
+Redis stores request counters and automatically resets them after a specified time window.
+
+This helps protect APIs from abuse and excessive traffic.
+
+---
+
+## Background Task Queues
+
+Redis is frequently used as a message broker for background task processing.
+
+Popular frameworks include:
+
+- Celery
+- BullMQ
+- Sidekiq
+
+Typical background jobs include:
+
+- Sending emails
+- Image processing
+- AI embedding generation
+- Report creation
+- Payment notifications
+
+Applications enqueue jobs into Redis while worker processes execute them asynchronously.
+
+---
+
+## Persistence
+
+Although Redis stores data in memory, it also supports persistence.
+
+Two primary persistence mechanisms are:
+
+### RDB Snapshots
+
+Redis periodically saves the dataset to disk.
+
+Advantages:
+
+- Compact backups
+- Fast recovery
+
+---
+
+### Append Only File (AOF)
+
+Every write operation is recorded in a log file.
+
+Advantages:
+
+- Better durability
+- Reduced data loss
+
+Applications can choose one or both persistence mechanisms depending on their reliability requirements.
+
+---
+
+## Replication
+
+Redis supports master-replica replication.
+
+Architecture:
+
+Application
+
+↓
+
+Primary Redis
+
+↓
+
+Replica Redis
+
+Replication improves:
+
+- Read scalability
+- High availability
+- Fault tolerance
+
+Replica servers can serve read requests while the primary handles writes.
+
+---
+
+## High Availability
+
+Redis provides high availability through Redis Sentinel.
+
+Sentinel automatically:
+
+- Monitors servers
+- Detects failures
+- Promotes replicas
+- Updates clients
+
+This minimizes downtime during server failures.
+
+---
+
+## Redis Cluster
+
+Redis Cluster enables horizontal scaling.
+
+Data is automatically partitioned across multiple Redis nodes.
+
+Benefits include:
+
+- Larger datasets
+- Higher throughput
+- Fault tolerance
+- Scalability
+
+Redis Cluster is commonly used in enterprise production environments.
+
+---
+
+## Redis in Backend Development
+
+Redis is frequently integrated into backend applications.
+
+Common use cases include:
+
+- API caching
+- Authentication
+- Session management
+- OTP storage
+- Shopping carts
+- Feature flags
+- Rate limiting
+- Background job queues
+- Real-time notifications
+
+Frameworks such as Django, FastAPI, Express.js, and Spring Boot all integrate easily with Redis.
+
+---
+
+## Redis in AI Applications
+
+Redis is widely used in AI-powered systems.
+
+Typical AI architecture:
+
+Frontend
+
+↓
+
+Backend API
+
+↓
+
+Redis
+
+↓
+
+LLM
+
+↓
+
+Vector Database
+
+↓
+
+Database
+
+Redis commonly stores:
+
+- User sessions
+- Chat history
+- Cached embeddings
+- API rate limits
+- Background jobs
+- Temporary inference results
+- Prompt caches
+
+For Retrieval-Augmented Generation (RAG) systems, Redis is often paired with Celery to process document ingestion and embedding generation asynchronously.
+
+---
+
+## Deployment
+
+Redis is commonly deployed using:
+
+- Docker
+- Docker Compose
+- Kubernetes
+- AWS ElastiCache
+- Azure Cache for Redis
+- Google Memorystore
+
+Cloud-managed Redis services simplify maintenance, backups, monitoring, and scaling.
+
+---
+
+## Advantages
+
+- Extremely fast performance
+- Low latency
+- Rich data structures
+- Easy to integrate
+- Supports caching and messaging
+- Automatic key expiration
+- High scalability
+- Replication and clustering support
+- Lightweight deployment
+- Excellent community support
+
+---
+
+## Disadvantages
+
+- Memory is more expensive than disk storage, making Redis less suitable for storing very large datasets.
+- Complex queries are limited compared to relational databases.
+- Data may be lost if persistence is not properly configured.
+- Not intended to replace traditional databases for transactional workloads.
+
+---
+
+## Common Use Cases
+
+Redis is commonly used for:
+
+- Caching
+- Session storage
+- Rate limiting
+- Leaderboards
+- Shopping carts
+- Chat applications
+- Background job queues
+- Pub/Sub messaging
+- API response caching
+- Authentication
+- Feature flags
+- Real-time analytics
+
+---
+
+## Redis Best Practices
+
+- Use Redis primarily for temporary or frequently accessed data.
+- Set expiration times for cached values whenever appropriate.
+- Choose the correct data structure for each use case.
+- Monitor memory usage to prevent eviction issues.
+- Enable persistence if data durability is required.
+- Avoid storing excessively large values under a single key.
+- Use connection pooling to improve application performance.
+- Deploy Redis with replication and Sentinel or Cluster in production.
+- Secure Redis using authentication and network restrictions.
+- Monitor cache hit rates to measure caching effectiveness.

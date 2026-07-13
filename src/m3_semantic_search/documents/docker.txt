@@ -1,0 +1,556 @@
+# Docker
+
+## Introduction
+
+Docker is an open-source containerization platform that enables developers to build, package, distribute, and run applications in lightweight, portable containers. A container bundles an application together with its source code, runtime, libraries, dependencies, configuration files, and environment settings, ensuring that it behaves consistently regardless of where it is executed.
+
+Unlike traditional deployment methods where applications may behave differently due to operating system differences or missing dependencies, Docker provides a standardized execution environment. This allows developers to build an application once and run it anywhere, whether on a local development machine, a testing server, a cloud platform, or a production environment.
+
+Docker has become one of the most widely adopted technologies in modern software engineering because it simplifies application deployment, improves developer productivity, and enables scalable microservice architectures.
+
+---
+
+## Why Docker Was Created
+
+Before Docker, developers commonly encountered the problem:
+
+"It works on my machine."
+
+An application that worked perfectly on a developer's laptop might fail on another developer's computer or in production because of differences in:
+
+- Operating system versions
+- Installed libraries
+- Python or Java versions
+- Environment variables
+- Database drivers
+- Package dependencies
+
+Docker solves this problem by packaging everything the application needs into a portable container.
+
+---
+
+## What is a Container?
+
+A container is an isolated runtime environment that contains:
+
+- Application source code
+- Runtime environment
+- System libraries
+- Installed packages
+- Environment variables
+- Configuration files
+- Executable commands
+
+Containers share the host operating system's kernel, making them significantly more lightweight than virtual machines while still providing process isolation.
+
+Multiple containers can run simultaneously on the same machine without interfering with one another.
+
+---
+
+## Containers vs Virtual Machines
+
+Although both containers and virtual machines isolate applications, they work differently.
+
+### Virtual Machines
+
+A virtual machine includes:
+
+- Guest Operating System
+- System libraries
+- Application
+- Virtual hardware
+
+Each virtual machine requires its own operating system, making it relatively large and slower to start.
+
+Advantages:
+
+- Strong isolation
+- Can run different operating systems
+
+Disadvantages:
+
+- Large disk usage
+- High memory consumption
+- Slow startup time
+
+---
+
+### Containers
+
+Containers include:
+
+- Application
+- Dependencies
+- Runtime
+
+They share the host operating system kernel instead of including an entire operating system.
+
+Advantages:
+
+- Lightweight
+- Fast startup
+- Efficient resource utilization
+- Easy portability
+
+Because containers are lightweight, a single server can run dozens or even hundreds of containers.
+
+---
+
+## Docker Architecture
+
+Docker follows a client-server architecture.
+
+Main components include:
+
+### Docker Client
+
+The Docker CLI is used by developers to execute commands such as:
+
+- docker build
+- docker run
+- docker ps
+- docker stop
+
+The client communicates with the Docker daemon.
+
+---
+
+### Docker Daemon
+
+The Docker daemon is responsible for:
+
+- Building images
+- Running containers
+- Managing networks
+- Managing volumes
+- Pulling images
+- Monitoring running containers
+
+It performs the actual work requested by the Docker client.
+
+---
+
+### Docker Registry
+
+Docker images are stored inside registries.
+
+Popular registries include:
+
+- Docker Hub
+- GitHub Container Registry
+- Amazon ECR
+- Google Artifact Registry
+- Azure Container Registry
+
+Developers push images to a registry and later pull them onto servers for deployment.
+
+---
+
+## Docker Images
+
+A Docker image is a read-only template used to create containers.
+
+An image contains:
+
+- Operating system layer
+- Runtime
+- Application code
+- Installed packages
+- Configuration
+
+Images are immutable.
+
+Once built, the same image can be deployed consistently across multiple environments.
+
+Examples:
+
+- python:3.12
+- nginx:latest
+- redis:7
+- postgres:16
+
+---
+
+## Docker Containers
+
+A container is a running instance of an image.
+
+Relationship:
+
+Image
+
+↓
+
+Container 1
+
+Container 2
+
+Container 3
+
+Multiple containers can be created from the same image.
+
+Containers have their own:
+
+- Filesystem
+- Network interface
+- Processes
+- Environment variables
+
+---
+
+## Dockerfile
+
+A Dockerfile is a text file containing instructions for building a Docker image.
+
+Typical instructions include:
+
+- Selecting a base image
+- Installing dependencies
+- Copying application files
+- Setting environment variables
+- Defining the startup command
+
+Example workflow:
+
+Source Code
+
+↓
+
+Dockerfile
+
+↓
+
+Docker Image
+
+↓
+
+Docker Container
+
+---
+
+## Docker Build Process
+
+The build process consists of several steps:
+
+1. Read Dockerfile
+2. Pull base image if needed
+3. Execute each instruction
+4. Create image layers
+5. Produce final image
+
+Docker caches image layers, making subsequent builds much faster if only a small part of the application changes.
+
+---
+
+## Image Layers
+
+Docker images are composed of multiple layers.
+
+For example:
+
+Layer 1
+
+Ubuntu
+
+↓
+
+Layer 2
+
+Python
+
+↓
+
+Layer 3
+
+Application Dependencies
+
+↓
+
+Layer 4
+
+Application Code
+
+Because layers are cached, Docker only rebuilds layers that have changed.
+
+This significantly speeds up development.
+
+---
+
+## Docker Networking
+
+Containers communicate through Docker networks.
+
+Docker supports several networking modes.
+
+### Bridge Network
+
+Default network.
+
+Containers on the same bridge network can communicate using container names.
+
+Commonly used in local development.
+
+---
+
+### Host Network
+
+The container shares the host machine's network stack.
+
+Provides better performance but less isolation.
+
+Mostly used in Linux environments.
+
+---
+
+### None Network
+
+The container has no network access.
+
+Useful for isolated workloads.
+
+---
+
+### Custom Networks
+
+Developers can create custom networks to connect related services.
+
+For example:
+
+Frontend
+
+↓
+
+Backend
+
+↓
+
+Database
+
+All containers communicate securely using service names.
+
+---
+
+## Docker Volumes
+
+Containers are designed to be temporary.
+
+If a container is deleted, its filesystem is also deleted.
+
+Docker volumes solve this problem by storing persistent data outside the container.
+
+Volumes are commonly used for:
+
+- Databases
+- Uploaded files
+- Application logs
+- Configuration files
+
+Without volumes, restarting a database container would result in data loss.
+
+---
+
+## Docker Compose
+
+Docker Compose allows developers to define multiple containers in a single configuration file.
+
+Instead of starting services manually, developers describe the entire application stack.
+
+Example services include:
+
+- Django
+- PostgreSQL
+- Redis
+- Celery
+- Nginx
+
+A single command starts the complete application environment.
+
+Docker Compose is widely used during development and testing.
+
+---
+
+## Environment Variables
+
+Applications often require configuration such as:
+
+- Database credentials
+- API keys
+- Secret keys
+- Debug mode
+
+Docker allows environment variables to be injected into containers without modifying application code.
+
+This enables the same image to be used across development, staging, and production.
+
+---
+
+## Common Docker Commands
+
+Frequently used commands include:
+
+- Build an image
+- Run a container
+- Stop a container
+- Restart a container
+- List running containers
+- Remove containers
+- View logs
+- Execute commands inside containers
+- Pull images
+- Push images
+
+These commands form the foundation of day-to-day Docker usage.
+
+---
+
+## Docker in Microservices
+
+Docker is commonly used to package individual microservices.
+
+Example architecture:
+
+React Frontend
+
+↓
+
+API Gateway
+
+↓
+
+User Service
+
+Order Service
+
+Payment Service
+
+Notification Service
+
+↓
+
+PostgreSQL
+
+Redis
+
+Each service runs inside its own container, making deployment and scaling easier.
+
+---
+
+## Docker in CI/CD
+
+Docker integrates seamlessly with CI/CD pipelines.
+
+Typical workflow:
+
+Developer pushes code
+
+↓
+
+GitHub Actions / Jenkins
+
+↓
+
+Run Tests
+
+↓
+
+Build Docker Image
+
+↓
+
+Push Image to Registry
+
+↓
+
+Deploy to Production
+
+Because the image is immutable, production runs the exact same software that passed testing.
+
+---
+
+## Docker in AI Applications
+
+Docker is widely used to deploy AI and machine learning applications.
+
+Typical AI stack:
+
+React Frontend
+
+↓
+
+FastAPI or Django
+
+↓
+
+LLM Service
+
+↓
+
+Vector Database
+
+↓
+
+PostgreSQL
+
+↓
+
+Redis
+
+Each component runs in its own container, making deployment consistent and reproducible.
+
+Docker is especially valuable for AI applications because models often require specific versions of Python libraries and system dependencies.
+
+---
+
+## Advantages
+
+- Consistent environments across development and production
+- Lightweight compared to virtual machines
+- Fast startup time
+- Simplifies dependency management
+- Easy application deployment
+- Portable across operating systems
+- Excellent support for microservices
+- Strong ecosystem and community
+- Integrates well with CI/CD pipelines
+- Efficient resource utilization
+
+---
+
+## Disadvantages
+
+- Containers share the host operating system kernel, providing less isolation than virtual machines.
+- Persistent storage requires careful volume management.
+- Networking can become complex in large distributed systems.
+- Large Docker images can slow deployments.
+- Learning Docker concepts such as networking, volumes, and image optimization requires practice.
+
+---
+
+## Common Use Cases
+
+Docker is commonly used for:
+
+- Backend API deployment
+- Microservices
+- CI/CD pipelines
+- Local development environments
+- Database containers
+- AI and machine learning applications
+- DevOps workflows
+- Cloud-native applications
+- Container orchestration with Kubernetes
+- Testing and staging environments
+
+---
+
+## Docker Best Practices
+
+- Use lightweight base images whenever possible.
+- Keep Docker images small by removing unnecessary files.
+- Use multi-stage builds to optimize production images.
+- Store secrets outside the image using environment variables or secret managers.
+- Persist important data using Docker volumes.
+- Use Docker Compose for local multi-container development.
+- Tag images with version numbers instead of relying on the `latest` tag.
+- Regularly update base images to receive security patches.
+- Avoid running containers as the root user in production.

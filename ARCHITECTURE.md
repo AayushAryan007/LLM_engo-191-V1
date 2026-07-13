@@ -22,9 +22,10 @@ AI/
 ├── .venv/                 # shared virtualenv for all modules
 ├── docs/                  # long-form notes
 └── src/
-    ├── m1_cli_chat/       # M1 — CLI LLM client
-    ├── m2_prompt_studio/  # M2 — prompt engineering studio (reference module)
-    └── ...                # later milestones
+    ├── m1_cli_chat/        # M1 — CLI LLM client
+    ├── m2_prompt_studio/   # M2 — prompt engineering studio (reference module)
+    ├── m3_semantic_search/ # M3 — in-memory semantic search (embeddings)
+    └── ...                 # later milestones
 ```
 
 Configuration is **shared at the root** (`.env`, `.venv`, `requirements.txt`)
@@ -151,6 +152,32 @@ You should **not** need to touch `llm.py`, `config.py`, or `printer.py` to add a
 feature. If you do, question whether the responsibility is landing in the right
 layer. (Playground Upgrade is the deliberate exception: multi-turn chat with
 temperature/model controls legitimately extends `llm.py`.)
+
+## The pattern generalizes: m3_semantic_search
+
+M3 is a second concrete application of the same layering — evidence the design
+is not specific to LLM chat. The roles map directly:
+
+| Role | m2_prompt_studio | m3_semantic_search |
+|------|------------------|--------------------|
+| Provider boundary | `llm.py` (Groq) | `embedding_client.py` (`EmbeddingClient` ABC + local sentence-transformers) |
+| Business logic | `services/*_service.py` | `services/{embedding,search}_service.py` |
+| Pure helpers | — | `similarity/cosine.py` (dependency-free math) |
+| Storage | — | `storage/document_store.py` (in-memory) |
+| Data models | domain enums | `models.py` dataclasses (Document, DocumentEmbedding, SearchResult) |
+| Orchestration | `main.py` | `main.py` + `bootstrap.py` factory |
+
+New patterns M3 contributes:
+
+- **Provider isolation via an ABC.** `EmbeddingClient` is an abstract interface;
+  the concrete `SentenceTransformerEmbeddingClient` is the only code importing
+  the embedding library, so an API provider can be added without touching
+  `EmbeddingService` or anything above it. Same principle as `llm.py`, expressed
+  as an ABC because a provider swap is explicitly anticipated.
+- **Bootstrap factory.** `bootstrap.build_search_service()` centralizes wiring
+  so `main`, `evaluation.py`, and `tests.py` share one setup path (DRY).
+- **First-class evaluation + tests.** `evaluation.py` reports Top-1 accuracy and
+  `tests.py` runs without pytest — quality measurement is part of the app.
 
 ## How to add a new **module** (milestone)
 

@@ -151,11 +151,12 @@ AI-powered text transformation tools such as resume improvement, email generatio
 
 ---
 
-## Milestone 3 — Semantic Search
+## Milestone 3 — Semantic Search (`m3_semantic_search`)
 
 **Objective**
 
-Understand how machines compare meaning instead of keywords.
+Understand how machines compare meaning instead of keywords — built **from
+first principles** with no vector database, no LangChain, and no RAG.
 
 ### Topics
 
@@ -163,6 +164,34 @@ Understand how machines compare meaning instead of keywords.
 - Similarity Search
 - Cosine Similarity
 - Vector Representations
+
+### Architecture
+
+The same one-way pipeline as M2, adapted from "LLM chat" to "search":
+
+```
+main.py                 orchestration — interactive search loop
+bootstrap.py            wires corpus → store → embeddings → search (shared setup)
+services/search_service business logic — embed query, rank, threshold, Top-K
+services/embedding_service  turn documents/queries into vectors
+embedding_client.py     EmbeddingClient ABC + local sentence-transformers impl
+similarity/cosine.py    pure cosine-similarity math (no numpy/sklearn)
+storage/document_store  in-memory document storage
+utils/{loader,printer}  read corpus / terminal output
+models.py               Document, DocumentEmbedding, SearchResult (dataclasses)
+```
+
+Embeddings run **offline** via a local model (`all-MiniLM-L6-v2`, 384-dim)
+behind the `EmbeddingClient` abstraction, so an OpenAI-compatible provider can
+be swapped in without changing higher layers. (Groq has no embeddings endpoint.)
+
+### Status
+
+**M3 complete.** Loads a corpus, embeds it once, and serves interactive semantic
+search ranked by cosine similarity (Top-K with a `MIN_SCORE` threshold). Ships
+an evaluation harness (`evaluation.py`, Top-1 accuracy over 10 queries) and a
+no-pytest test suite (`tests.py`). Known limitation: the embedding model
+truncates long documents to ~256 tokens (chunking is a future improvement).
 
 ### Deliverable
 
@@ -378,6 +407,18 @@ AI/
     │   ├── services/
     │   └── utils/
     ├── m3_semantic_search/
+    │   ├── main.py
+    │   ├── bootstrap.py
+    │   ├── config.py
+    │   ├── models.py
+    │   ├── embedding_client.py
+    │   ├── evaluation.py
+    │   ├── tests.py
+    │   ├── services/
+    │   ├── similarity/
+    │   ├── storage/
+    │   ├── utils/
+    │   └── documents/
     ├── m4_vector_database/
     ├── m5_rag/
     ├── m6_function_calling/
@@ -412,7 +453,7 @@ Rather than building isolated examples, each milestone extends previous work, gr
 |-----------|----------|--------|
 | M1 | CLI LLM Client | ✅ Complete |
 | M2 | Prompt Engineering (Prompt Studio) | ✅ Complete |
-| M3 | Semantic Search | ⏳ Planned |
+| M3 | Semantic Search | ✅ Complete |
 | M4 | Vector Database | ⏳ Planned |
 | M5 | RAG | ⏳ Planned |
 | M6 | Function Calling | ⏳ Planned |
